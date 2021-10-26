@@ -19,6 +19,17 @@ interface State {
   isSingedIn: boolean;
   inputImage: string;
   imageUrl: string;
+  boundingBoxes: any;
+}
+
+interface boundingBox {
+  id: string;
+  celebrityConcepts: any;
+  generalConcepts: any;
+  leftcol: Number;
+  topRow: Number;
+  rightCol: Number;
+  bottomRow: Number;
 }
 
 interface User {}
@@ -28,7 +39,26 @@ const initialState: State = {
   isSingedIn: false,
   inputImage: "",
   imageUrl: "",
+  boundingBoxes: {
+    id: "",
+    celebrityConcepts: [],
+    generalConcepts: [],
+    leftcol: 0,
+    topRow: 0,
+    rightCol: 0,
+    bottomRow: 0,
+  },
 };
+
+// {
+//   id: "",
+//   celebrityConcepts: [],
+//   generalConcepts: [],
+//   leftcol: 0,
+//   topRow: 0,
+//   rightCol: 0,
+//   bottomRow: 0,
+// },
 
 class App extends React.Component<Props, State> {
   constructor(props: State) {
@@ -50,13 +80,85 @@ class App extends React.Component<Props, State> {
     this.setState({ inputImage: event?.target.value });
   };
 
-  onImageSubmit = () => {
-    console.log("buci");
-    this.setState({ imageUrl: this.state.inputImage });
+  calculateFaceLocation = (data: any) => {
+    const regions = data.outputs[0].data.regions;
+    const image: any = document.getElementById("inputImage");
+    const width = Number(image.width);
+    const height = Number(image.height);
+
+    const boundingBoxes = regions.map((region: any) => {
+      const { id } = region;
+      const face = region.region_info.bounding_box;
+
+      const celebrityConcepts = region.data.concepts
+        .map((celebrity: any) => {
+          return {
+            id: celebrity.id,
+            name: celebrity.name,
+            value: celebrity.value,
+          };
+        })
+        .slice(0, 3);
+
+      return {
+        celebrityConcepts: celebrityConcepts,
+        id: id,
+        leftCol: face.left_col * width,
+        topRow: face.top_row * height,
+        rightCol: width - face.right_col * width,
+        bottomRow: height - face.bottom_row * height,
+      };
+    });
+
+    return boundingBoxes;
+  };
+
+  addGeneralConcepts = (data: any) => {
+    console.log(data);
+    const concepts = data.outputs[0].data.concepts
+      .map((concept: any) => {
+        return {
+          id: concept.id,
+          name: concept.name,
+          value: concept.value,
+        };
+      })
+      .slice(0, 5);
+
+    console.log(this.state.boundingBoxes);
+    console.log(concepts);
+    this.setState((prevState) => ({
+      boundingBoxes: [...prevState.boundingBoxes, concepts],
+    }));
+  };
+
+  displayFaceBox = (boundingBox: any): void => {
+    this.setState({ boundingBoxes: boundingBox });
+  };
+
+  celebrityModelAPI = (input: string): void => {
     app.models
-      .predict(Clarifai.FACE_DETECT_MODEL, this.state.inputImage)
-      .then((response: Object) => console.log(response))
+      .predict(Clarifai.CELEBRITY_MODEL, this.state.inputImage)
+      .then((response: Object) => {
+        this.displayFaceBox(this.calculateFaceLocation(response));
+      })
       .catch((err: Error) => console.log(err));
+  };
+
+  generalModelAPI = (input: string): void => {
+    app.models
+      .predict(Clarifai.GENERAL_MODEL, this.state.inputImage)
+      .then((response: Object) => {
+        this.addGeneralConcepts(response);
+      })
+      .catch((err: Error) => console.log(err));
+  };
+
+  onImageSubmit = () => {
+    this.setState({ boundingBoxes: [] });
+    this.setState({ imageUrl: this.state.inputImage });
+    this.celebrityModelAPI(this.state.inputImage);
+    // this.generalModelAPI(this.state.inputImage);
   };
 
   render() {
@@ -83,7 +185,10 @@ class App extends React.Component<Props, State> {
               onImageSubmit={this.onImageSubmit}
               onInputChange={this.onInputChange}
             />
-            <FaceRecognition imageUrl={this.state.inputImage} />
+            <FaceRecognition
+              boundingBoxes={this.state.boundingBoxes}
+              imageUrl={this.state.inputImage}
+            />
           </>
         ) : this.state.route === "signIn" ? (
           <SignIn onRouteChange={this.onRouteChange} />

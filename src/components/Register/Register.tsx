@@ -23,7 +23,6 @@ const Register = () => {
     setInputValues({ ...inputValues, [name]: value });
   };
 
-  console.log(inputValues);
   return (
     <>
       <Form className="register center flex-column">
