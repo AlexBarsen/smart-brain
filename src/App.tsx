@@ -8,60 +8,25 @@ import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Clarifai from "clarifai";
 
+import { AppProps, AppState } from "./interfaces";
+
 const app = new Clarifai.App({
   apiKey: "6f6968867f3c4783ac2dd9f11db5bf79",
 });
 
-interface Props {}
-
-interface State {
-  route: string;
-  isSingedIn: boolean;
-  inputImage: string;
-  imageUrl: string;
-  boundingBoxes: any;
-}
-
-interface boundingBox {
-  id: string;
-  celebrityConcepts: any;
-  generalConcepts: any;
-  leftcol: Number;
-  topRow: Number;
-  rightCol: Number;
-  bottomRow: Number;
-}
-
-interface User {}
-
-const initialState: State = {
+const initialState: AppState = {
   route: "signIn",
   isSingedIn: false,
   inputImage: "",
   imageUrl: "",
-  boundingBoxes: {
-    id: "",
-    celebrityConcepts: [],
+  detection: {
+    detectedValues: [],
     generalConcepts: [],
-    leftcol: 0,
-    topRow: 0,
-    rightCol: 0,
-    bottomRow: 0,
   },
 };
 
-// {
-//   id: "",
-//   celebrityConcepts: [],
-//   generalConcepts: [],
-//   leftcol: 0,
-//   topRow: 0,
-//   rightCol: 0,
-//   bottomRow: 0,
-// },
-
-class App extends React.Component<Props, State> {
-  constructor(props: State) {
+class App extends React.Component<AppProps, AppState> {
+  constructor(props: AppState) {
     super(props);
     this.state = initialState;
   }
@@ -86,7 +51,7 @@ class App extends React.Component<Props, State> {
     const width = Number(image.width);
     const height = Number(image.height);
 
-    const boundingBoxes = regions.map((region: any) => {
+    const detection = regions.map((region: any) => {
       const { id } = region;
       const face = region.region_info.bounding_box;
 
@@ -110,11 +75,11 @@ class App extends React.Component<Props, State> {
       };
     });
 
-    return boundingBoxes;
+    return detection;
   };
 
   addGeneralConcepts = (data: any) => {
-    console.log(data);
+    // console.log(data);
     const concepts = data.outputs[0].data.concepts
       .map((concept: any) => {
         return {
@@ -125,15 +90,22 @@ class App extends React.Component<Props, State> {
       })
       .slice(0, 5);
 
-    console.log(this.state.boundingBoxes);
     console.log(concepts);
+
     this.setState((prevState) => ({
-      boundingBoxes: [...prevState.boundingBoxes, concepts],
+      ...prevState,
+      detection: {
+        ...prevState.detection,
+        generalConcepts: concepts,
+      },
     }));
   };
 
-  displayFaceBox = (boundingBox: any): void => {
-    this.setState({ boundingBoxes: boundingBox });
+  displayFaceBox = (detectedValues: any): void => {
+    this.setState((prevState) => ({
+      ...prevState,
+      detection: { ...prevState.detection, detectedValues },
+    }));
   };
 
   celebrityModelAPI = (input: string): void => {
@@ -155,10 +127,16 @@ class App extends React.Component<Props, State> {
   };
 
   onImageSubmit = () => {
-    this.setState({ boundingBoxes: [] });
+    this.setState((prevState) => ({
+      ...prevState,
+      detection: {
+        detectedValues: [],
+        generalConcepts: [],
+      },
+    }));
     this.setState({ imageUrl: this.state.inputImage });
+    this.generalModelAPI(this.state.inputImage);
     this.celebrityModelAPI(this.state.inputImage);
-    // this.generalModelAPI(this.state.inputImage);
   };
 
   render() {
@@ -186,7 +164,7 @@ class App extends React.Component<Props, State> {
               onInputChange={this.onInputChange}
             />
             <FaceRecognition
-              boundingBoxes={this.state.boundingBoxes}
+              detection={this.state.detection}
               imageUrl={this.state.inputImage}
             />
           </>

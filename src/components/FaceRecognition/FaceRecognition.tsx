@@ -3,13 +3,18 @@ import "./FaceRecognition.css";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 
+import { DetectionValues, GeneralConcepts } from "../../interfaces";
+
 interface Props {
   imageUrl: string;
-  boundingBoxes: any;
+  detection: {
+    detectedValues: DetectionValues[];
+    generalConcepts: GeneralConcepts[];
+  };
 }
 
-const FaceRecognition: React.FC<Props> = ({ imageUrl, boundingBoxes }) => {
-  console.log(boundingBoxes);
+const FaceRecognition: React.FC<Props> = ({ imageUrl, detection }) => {
+  console.log(detection);
   const capitalizeName = (name: string) => {
     const fullName = name.split(" ");
     return fullName
@@ -24,39 +29,39 @@ const FaceRecognition: React.FC<Props> = ({ imageUrl, boundingBoxes }) => {
 
   return (
     <div className="center">
-      <Card style={{ width: "30rem" }}>
+      <Card style={{ width: "600px" }}>
         <div style={{ position: "relative" }}>
           <Card.Img id="inputImage" variant="top" src={imageUrl} />
-          {boundingBoxes.length
-            ? boundingBoxes.map((boundingBox: any, index: number) => (
-                <>
-                  <div
-                    key={boundingBox.id}
-                    className="bounding-box"
-                    style={{
-                      top: boundingBox.topRow,
-                      right: boundingBox.rightCol,
-                      bottom: boundingBox.bottomRow,
-                      left: boundingBox.leftCol,
-                    }}
-                  >
-                    <div className="bounding-box--number">{index + 1}</div>
+          {detection.detectedValues.length
+            ? detection.detectedValues.map(
+                (boundingBox: any, index: number) => (
+                  <div key={boundingBox.id}>
+                    <div
+                      className="bounding-box"
+                      style={{
+                        top: boundingBox.topRow,
+                        right: boundingBox.rightCol,
+                        bottom: boundingBox.bottomRow,
+                        left: boundingBox.leftCol,
+                      }}
+                    >
+                      <div className="bounding-box--number">{index + 1}</div>
+                    </div>
                   </div>
-                </>
-              ))
+                )
+              )
             : null}
         </div>
         <Card.Body>
           <Card.Title>Smart brain has detected the follwing:</Card.Title>
-          {boundingBoxes.length ? (
-            <Card.Text>Faces: {boundingBoxes.length}</Card.Text>
-          ) : null}
-          <Card.Text>
+          {/* {detection.length ? (
+            <Card.Text>Faces detected in image: {detection.length}</Card.Text>
+          ) : null} */}
+          {/* <Card.Text>
             The algorith suggests it might be a celebrity with the follwing %:
-          </Card.Text>
-
-          {boundingBoxes.length
-            ? boundingBoxes.map((box: any, index: number) => (
+          </Card.Text> */}
+          {detection.detectedValues.length
+            ? detection.detectedValues.map((box: any, index: number) => (
                 <div key={index}>
                   <p>Face number {index + 1}</p>
                   {box.celebrityConcepts.map((concept: any, index: number) => (
