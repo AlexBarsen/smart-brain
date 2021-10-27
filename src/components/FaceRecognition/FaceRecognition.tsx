@@ -2,8 +2,9 @@ import React from "react";
 import "./FaceRecognition.css";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
-
-import { DetectionValues, GeneralConcepts } from "../../interfaces";
+import GeneralConceptsList from "../GeneralConceptsList/GeneralConceptsList";
+import { DetectionValues, GeneralConcepts } from "../interfaces";
+import CelebrityConceptsList from "../CelebrityConceptsList/CelebrityConceptsList";
 
 interface Props {
   imageUrl: string;
@@ -14,24 +15,24 @@ interface Props {
 }
 
 const FaceRecognition: React.FC<Props> = ({ imageUrl, detection }) => {
-  console.log(detection);
-  const capitalizeName = (name: string) => {
-    const fullName = name.split(" ");
-    return fullName
-      .map((name: string) => name.charAt(0).toUpperCase() + name.slice(1))
-      .join(" ");
-  };
+  // const capitalizeName = (name: string) => {
+  //   const fullName = name.split(" ");
+  //   return fullName
+  //     .map((name: string) => name.charAt(0).toUpperCase() + name.slice(1))
+  //     .join(" ");
+  // };
 
-  const convertToPercentage = (value: number) => {
-    const percentage = value * 100;
-    return percentage.toString().substring(0, 4) + "%";
-  };
+  // const convertToPercentage = (value: number) => {
+  //   const percentage = value * 100;
+  //   return percentage.toString().substring(0, 4) + "%";
+  // };
 
   return (
     <div className="center">
-      <Card style={{ width: "600px" }}>
+      <Card style={{ width: "750px" }}>
         <div style={{ position: "relative" }}>
           <Card.Img id="inputImage" variant="top" src={imageUrl} />
+
           {detection.detectedValues.length
             ? detection.detectedValues.map(
                 (boundingBox: any, index: number) => (
@@ -53,28 +54,16 @@ const FaceRecognition: React.FC<Props> = ({ imageUrl, detection }) => {
             : null}
         </div>
         <Card.Body>
-          <Card.Title>Smart brain has detected the follwing:</Card.Title>
-          {/* {detection.length ? (
-            <Card.Text>Faces detected in image: {detection.length}</Card.Text>
-          ) : null} */}
-          {/* <Card.Text>
-            The algorith suggests it might be a celebrity with the follwing %:
-          </Card.Text> */}
-          {detection.detectedValues.length
-            ? detection.detectedValues.map((box: any, index: number) => (
-                <div key={index}>
-                  <p>Face number {index + 1}</p>
-                  {box.celebrityConcepts.map((concept: any, index: number) => (
-                    <p key={concept.id}>
-                      {index + 1}: {capitalizeName(concept.name)} with a
-                      probabilty of: {convertToPercentage(concept.value)}
-                    </p>
-                  ))}
-                </div>
-              ))
-            : null}
-
-          <Button variant="primary">Go somewhere</Button>
+          <Card.Title style={{ justifyContent: "flex-start", display: "flex" }}>
+            Concepts in Image:
+          </Card.Title>
+          <Card.Text>Top 3 concepts in the image are:</Card.Text>
+          <Card.Text>
+            If the there are celebrities in the image Smart Brain suggests they
+            are:
+          </Card.Text>
+          <GeneralConceptsList generalConcepts={detection.generalConcepts} />
+          <CelebrityConceptsList detectedValues={detection.detectedValues} />
         </Card.Body>
       </Card>
     </div>

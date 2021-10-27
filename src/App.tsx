@@ -8,7 +8,20 @@ import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Clarifai from "clarifai";
 
-import { AppProps, AppState } from "./interfaces";
+import { DetectionValues, GeneralConcepts } from "./components/interfaces";
+
+interface AppProps {}
+
+interface AppState {
+  route: string;
+  isSingedIn: boolean;
+  inputImage: string;
+  imageUrl: string;
+  detection: {
+    detectedValues: DetectionValues[];
+    generalConcepts: GeneralConcepts[];
+  };
+}
 
 const app = new Clarifai.App({
   apiKey: "6f6968867f3c4783ac2dd9f11db5bf79",
@@ -45,7 +58,12 @@ class App extends React.Component<AppProps, AppState> {
     this.setState({ inputImage: event?.target.value });
   };
 
-  calculateFaceLocation = (data: any) => {
+  convertToPercentage = (value: number) => {
+    const percentage = value * 100;
+    return percentage.toString().substring(0, 4) + "%";
+  };
+
+  addCelebrityConcepts = (data: any) => {
     const regions = data.outputs[0].data.regions;
     const image: any = document.getElementById("inputImage");
     const width = Number(image.width);
@@ -60,14 +78,14 @@ class App extends React.Component<AppProps, AppState> {
           return {
             id: celebrity.id,
             name: celebrity.name,
-            value: celebrity.value,
+            probability: this.convertToPercentage(celebrity.value),
           };
         })
-        .slice(0, 3);
+        .slice(0, 5);
 
       return {
-        celebrityConcepts: celebrityConcepts,
         id: id,
+        celebrityConcepts: celebrityConcepts,
         leftCol: face.left_col * width,
         topRow: face.top_row * height,
         rightCol: width - face.right_col * width,
@@ -80,28 +98,26 @@ class App extends React.Component<AppProps, AppState> {
 
   addGeneralConcepts = (data: any) => {
     // console.log(data);
-    const concepts = data.outputs[0].data.concepts
+    const generalConcepts = data.outputs[0].data.concepts
       .map((concept: any) => {
         return {
           id: concept.id,
           name: concept.name,
-          value: concept.value,
+          probability: this.convertToPercentage(concept.value),
         };
       })
-      .slice(0, 5);
-
-    console.log(concepts);
+      .slice(0, 10);
 
     this.setState((prevState) => ({
       ...prevState,
       detection: {
         ...prevState.detection,
-        generalConcepts: concepts,
+        generalConcepts: generalConcepts,
       },
     }));
   };
 
-  displayFaceBox = (detectedValues: any): void => {
+  addFaceBox = (detectedValues: any): void => {
     this.setState((prevState) => ({
       ...prevState,
       detection: { ...prevState.detection, detectedValues },
@@ -110,16 +126,16 @@ class App extends React.Component<AppProps, AppState> {
 
   celebrityModelAPI = (input: string): void => {
     app.models
-      .predict(Clarifai.CELEBRITY_MODEL, this.state.inputImage)
+      .predict(Clarifai.CELEBRITY_MODEL, input)
       .then((response: Object) => {
-        this.displayFaceBox(this.calculateFaceLocation(response));
+        this.addFaceBox(this.addCelebrityConcepts(response));
       })
       .catch((err: Error) => console.log(err));
   };
 
   generalModelAPI = (input: string): void => {
     app.models
-      .predict(Clarifai.GENERAL_MODEL, this.state.inputImage)
+      .predict(Clarifai.GENERAL_MODEL, input)
       .then((response: Object) => {
         this.addGeneralConcepts(response);
       })
