@@ -23,6 +23,35 @@ interface AppState {
   };
 }
 
+interface ResponseObject {
+  outputs: Array<any>;
+  rawData: Object;
+  status: Object;
+}
+
+interface ConceptsObject {
+  id: string;
+  name: string;
+  value: number;
+  app_id: string;
+}
+
+interface RegionObject {
+  data: {
+    concepts: Array<any>;
+  };
+  id: string;
+  region_info: {
+    bounding_box: {
+      bottom_row: number;
+      left_col: number;
+      right_col: number;
+      top_row: number;
+    };
+  };
+  value: number;
+}
+
 const app = new Clarifai.App({
   apiKey: "6f6968867f3c4783ac2dd9f11db5bf79",
 });
@@ -70,18 +99,20 @@ class App extends React.Component<AppProps, AppState> {
       .join(" ");
   };
 
-  addCelebrityConcepts = (data: any) => {
+  addCelebrityConcepts = (data: ResponseObject) => {
     const regions = data.outputs[0].data.regions;
+
     const image: any = document.getElementById("inputImage");
+
     const width = Number(image.width);
     const height = Number(image.height);
 
-    const detection = regions.map((region: any) => {
+    const detection = regions.map((region: RegionObject) => {
       const { id } = region;
       const face = region.region_info.bounding_box;
 
       const celebrityConcepts = region.data.concepts
-        .map((celebrity: any) => {
+        .map((celebrity: ConceptsObject) => {
           return {
             id: celebrity.id,
             name: this.capitalizeName(celebrity.name),
@@ -103,10 +134,9 @@ class App extends React.Component<AppProps, AppState> {
     return detection;
   };
 
-  addGeneralConcepts = (data: any) => {
-    // console.log(data);
+  addGeneralConcepts = (data: ResponseObject) => {
     const generalConcepts = data.outputs[0].data.concepts
-      .map((concept: any) => {
+      .map((concept: ConceptsObject) => {
         return {
           id: concept.id,
           name: concept.name.charAt(0).toUpperCase() + concept.name.slice(1),
@@ -124,7 +154,7 @@ class App extends React.Component<AppProps, AppState> {
     }));
   };
 
-  addFaceBox = (detectedValues: any): void => {
+  addFaceBox = (detectedValues: DetectionValues[]): void => {
     this.setState((prevState) => ({
       ...prevState,
       detection: { ...prevState.detection, detectedValues },
@@ -134,7 +164,7 @@ class App extends React.Component<AppProps, AppState> {
   celebrityModelAPI = (input: string): void => {
     app.models
       .predict(Clarifai.CELEBRITY_MODEL, input)
-      .then((response: Object) => {
+      .then((response: ResponseObject) => {
         this.addFaceBox(this.addCelebrityConcepts(response));
       })
       .catch((err: Error) => console.log(err));
@@ -143,7 +173,7 @@ class App extends React.Component<AppProps, AppState> {
   generalModelAPI = (input: string): void => {
     app.models
       .predict(Clarifai.GENERAL_MODEL, input)
-      .then((response: Object) => {
+      .then((response: ResponseObject) => {
         this.addGeneralConcepts(response);
       })
       .catch((err: Error) => console.log(err));
@@ -188,7 +218,7 @@ class App extends React.Component<AppProps, AppState> {
             />
             <FaceRecognition
               detection={this.state.detection}
-              imageUrl={this.state.inputImage}
+              imageUrl={this.state.imageUrl}
             />
           </>
         ) : this.state.route === "signIn" ? (

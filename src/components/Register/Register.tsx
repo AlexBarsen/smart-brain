@@ -18,7 +18,7 @@ const Register = () => {
     confirmPassword: "",
   });
 
-  const onInputChange = (event: any) => {
+  const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value, name } = event.target;
     setInputValues({ ...inputValues, [name]: value });
   };

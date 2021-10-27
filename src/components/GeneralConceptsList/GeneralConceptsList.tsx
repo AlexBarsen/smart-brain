@@ -10,18 +10,28 @@ interface Props {
 
 const GeneralConceptsList: React.FC<Props> = ({ generalConcepts }) => {
   return (
-    <Accordion defaultActiveKey="1">
-      <Accordion.Item eventKey="0">
-        <Accordion.Header>General Concepts</Accordion.Header>
-        <Accordion.Body>
-          <ListGroup as="ol" numbered>
-            {generalConcepts.map((concept) => (
-              <ListGroupItem topLists={false} data={concept} />
-            ))}
-          </ListGroup>
-        </Accordion.Body>
-      </Accordion.Item>
-    </Accordion>
+    <>
+      <Accordion
+        defaultActiveKey="1"
+        className="mb-3"
+        style={{ width: "450px" }}
+      >
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>General Concepts</Accordion.Header>
+          <Accordion.Body>
+            <ListGroup as="ol" numbered>
+              {generalConcepts.map((concept) => (
+                <ListGroupItem
+                  topLists={false}
+                  data={concept}
+                  key={concept.id}
+                />
+              ))}
+            </ListGroup>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
+    </>
   );
 };
 

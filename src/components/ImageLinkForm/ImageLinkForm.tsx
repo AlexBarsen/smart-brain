@@ -7,7 +7,7 @@ import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
 
 interface Props {
-  onInputChange: (input: any) => void;
+  onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onImageSubmit: () => void;
 }
 
