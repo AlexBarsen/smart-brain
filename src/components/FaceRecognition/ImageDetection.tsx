@@ -1,7 +1,8 @@
 import React from "react";
-import "./FaceRecognition.css";
+import "./ImageDetection.css";
 import Card from "react-bootstrap/Card";
-import Button from "react-bootstrap/Button";
+import ListGroup from "react-bootstrap/ListGroup";
+import ListGroupItem from "../ListGroupItem/ListGroupItem";
 import GeneralConceptsList from "../GeneralConceptsList/GeneralConceptsList";
 import { DetectionValues, GeneralConcepts } from "../interfaces";
 import CelebrityConceptsList from "../CelebrityConceptsList/CelebrityConceptsList";
@@ -9,24 +10,13 @@ import CelebrityConceptsList from "../CelebrityConceptsList/CelebrityConceptsLis
 interface Props {
   imageUrl: string;
   detection: {
-    detectedValues: DetectionValues[];
+    detectedValues: any;
     generalConcepts: GeneralConcepts[];
   };
 }
 
-const FaceRecognition: React.FC<Props> = ({ imageUrl, detection }) => {
-  // const capitalizeName = (name: string) => {
-  //   const fullName = name.split(" ");
-  //   return fullName
-  //     .map((name: string) => name.charAt(0).toUpperCase() + name.slice(1))
-  //     .join(" ");
-  // };
-
-  // const convertToPercentage = (value: number) => {
-  //   const percentage = value * 100;
-  //   return percentage.toString().substring(0, 4) + "%";
-  // };
-
+const ImageDetection: React.FC<Props> = ({ imageUrl, detection }) => {
+  console.log(detection);
   return (
     <div className="center">
       <Card style={{ width: "750px" }}>
@@ -54,14 +44,39 @@ const FaceRecognition: React.FC<Props> = ({ imageUrl, detection }) => {
             : null}
         </div>
         <Card.Body>
-          <Card.Title style={{ justifyContent: "flex-start", display: "flex" }}>
-            Concepts in Image:
-          </Card.Title>
-          <Card.Text>Top 3 concepts in the image are:</Card.Text>
-          <Card.Text>
-            If the there are celebrities in the image Smart Brain suggests they
-            are:
-          </Card.Text>
+          <div className="cardDescripition mb-4">
+            <Card.Text>
+              <Card.Title className="mb-3">
+                The top 3 concepts in the image are:
+              </Card.Title>
+
+              <ListGroup as="ol" numbered>
+                {detection.generalConcepts.slice(0, 3).map((concept) => (
+                  <ListGroupItem topLists={true} data={concept} />
+                ))}
+              </ListGroup>
+            </Card.Text>
+
+            <Card.Text>
+              <Card.Title className="mb-3">
+                If there are celebrities in the image they could be:
+              </Card.Title>
+              <ListGroup as="ol" numbered>
+                {detection.detectedValues.length
+                  ? detection.detectedValues.map((detectedValue: any) => (
+                      <>
+                        {detectedValue.celebrityConcepts
+                          .slice(0, 1)
+                          .map((celebrity: any) => (
+                            <ListGroupItem topLists={true} data={celebrity} />
+                          ))}
+                      </>
+                    ))
+                  : null}
+              </ListGroup>
+            </Card.Text>
+          </div>
+
           <GeneralConceptsList generalConcepts={detection.generalConcepts} />
           <CelebrityConceptsList detectedValues={detection.detectedValues} />
         </Card.Body>
@@ -70,4 +85,4 @@ const FaceRecognition: React.FC<Props> = ({ imageUrl, detection }) => {
   );
 };
 
-export default FaceRecognition;
+export default ImageDetection;

@@ -5,7 +5,7 @@ import SignIn from "./components/SignIn/SignIn";
 import Navigation from "./components/Navigation/Navigation";
 import Register from "./components/Register/Register";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
-import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
+import FaceRecognition from "./components/FaceRecognition/ImageDetection";
 import Clarifai from "clarifai";
 
 import { DetectionValues, GeneralConcepts } from "./components/interfaces";
@@ -63,6 +63,13 @@ class App extends React.Component<AppProps, AppState> {
     return percentage.toString().substring(0, 4) + "%";
   };
 
+  capitalizeName = (name: string) => {
+    const fullName = name.split(" ");
+    return fullName
+      .map((name: string) => name.charAt(0).toUpperCase() + name.slice(1))
+      .join(" ");
+  };
+
   addCelebrityConcepts = (data: any) => {
     const regions = data.outputs[0].data.regions;
     const image: any = document.getElementById("inputImage");
@@ -77,7 +84,7 @@ class App extends React.Component<AppProps, AppState> {
         .map((celebrity: any) => {
           return {
             id: celebrity.id,
-            name: celebrity.name,
+            name: this.capitalizeName(celebrity.name),
             probability: this.convertToPercentage(celebrity.value),
           };
         })
@@ -102,7 +109,7 @@ class App extends React.Component<AppProps, AppState> {
       .map((concept: any) => {
         return {
           id: concept.id,
-          name: concept.name,
+          name: concept.name.charAt(0).toUpperCase() + concept.name.slice(1),
           probability: this.convertToPercentage(concept.value),
         };
       })
