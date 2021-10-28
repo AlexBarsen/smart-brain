@@ -5,7 +5,8 @@ import SignIn from "./components/SignIn/SignIn";
 import Navigation from "./components/Navigation/Navigation";
 import Register from "./components/Register/Register";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
-import FaceRecognition from "./components/FaceRecognition/ImageDetection";
+import FaceRecognition from "./components/ImageDetection/ImageDetection";
+import Dashboard from "./components/Dashboard/Dashboard";
 import Clarifai from "clarifai";
 
 import {
@@ -186,24 +187,6 @@ class App extends React.Component<AppProps, AppState> {
     }));
   };
 
-  celebrityModelAPI = (input: string): void => {
-    app.models
-      .predict(Clarifai.CELEBRITY_MODEL, input)
-      .then((response: ResponseObject) => {
-        this.addFaceBox(this.addCelebrityConcepts(response));
-      })
-      .catch((err: Error) => console.log(err));
-  };
-
-  generalModelAPI = (input: string): void => {
-    app.models
-      .predict(Clarifai.GENERAL_MODEL, input)
-      .then((response: ResponseObject) => {
-        this.addGeneralConcepts(response);
-      })
-      .catch((err: Error) => console.log(err));
-  };
-
   onImageSubmit = () => {
     this.setState((prevState) => ({
       ...prevState,
@@ -213,12 +196,43 @@ class App extends React.Component<AppProps, AppState> {
       },
     }));
     this.setState({ imageUrl: this.state.inputImage });
-    this.generalModelAPI(this.state.inputImage);
-    this.celebrityModelAPI(this.state.inputImage);
+    Promise.all([
+      app.models.predict(Clarifai.GENERAL_MODEL, this.state.inputImage),
+      app.models.predict(Clarifai.CELEBRITY_MODEL, this.state.inputImage),
+    ]).then((responses) => {
+      if (responses) {
+        fetch("http://localhost:3001/image", {
+          method: "put",
+          headers: { "Content-type": "application/json" },
+          body: JSON.stringify({ id: this.state.user.id }),
+        })
+          .then((response) => response.json())
+          .then((entries) =>
+            this.setState((prevState) => ({
+              ...prevState,
+              user: {
+                id: this.state.user.id,
+                email: this.state.user.email,
+                username: this.state.user.username,
+                entries: entries,
+                joined: this.state.user.joined,
+              },
+            }))
+          )
+          .catch((err) => console.log(err));
+
+        Promise.all(
+          responses.map((response) =>
+            response.outputs[0].model.name === "general"
+              ? this.addGeneralConcepts(response)
+              : this.addFaceBox(this.addCelebrityConcepts(response))
+          )
+        );
+      }
+    });
   };
 
   render() {
-    console.log(this.state.user);
     return (
       <div className="App">
         <Particles
@@ -237,16 +251,25 @@ class App extends React.Component<AppProps, AppState> {
         />
         <Navigation onRouteChange={this.onRouteChange} />
         {this.state.route === "home" ? (
-          <>
-            <ImageLinkForm
-              onImageSubmit={this.onImageSubmit}
-              onInputChange={this.onInputChange}
+          <div className="d-flex justify-content-center">
+            <Dashboard
+              entries={this.state.user.entries}
+              user={this.state.user}
             />
-            <FaceRecognition
-              detection={this.state.detection}
-              imageUrl={this.state.imageUrl}
-            />
-          </>
+            <div
+              className="d-flex flex-column justify-content-center"
+              style={{ marginLeft: "40px" }}
+            >
+              <ImageLinkForm
+                onImageSubmit={this.onImageSubmit}
+                onInputChange={this.onInputChange}
+              />
+              <FaceRecognition
+                detection={this.state.detection}
+                imageUrl={this.state.imageUrl}
+              />
+            </div>
+          </div>
         ) : this.state.route === "signIn" ? (
           <SignIn loadUser={this.loadUser} />
         ) : (

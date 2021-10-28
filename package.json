@@ -25,6 +25,8 @@
   },
   "homepage": "https://github.com/AlexBarsen/smart-brain#readme",
   "dependencies": {
+    "@dicebear/avatars": "^4.10.0",
+    "@dicebear/avatars-bottts-sprites": "^4.10.0",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",

@@ -15,7 +15,7 @@ const ImageLinkForm: React.FC<Props> = ({ onInputChange, onImageSubmit }) => {
   return (
     <div className="flex-column align-items-center center">
       <h2 className="mb-3">
-        This Magic Brain will detect faces in the image you input below
+        Paste a link leading to an image in the input below.
       </h2>
 
       <InputGroup className="form mb-3">
