@@ -1,4 +1,9 @@
 .navigation {
-  display: flex;
-  justify-content: flex-end;
+  justify-content: flex-end !important;
+}
+
+@media screen and (max-width: 600px) {
+  .navigation {
+    justify-content: center !important;
+  }
 }

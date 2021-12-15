@@ -102,9 +102,12 @@ class App extends React.Component<AppProps, AppState> {
   onRouteChange = (route: string) => {
     if (route === "signOut") {
       this.setState({ isSingedIn: false });
+    } else if (route === "signIn") {
+      this.setState({ isSingedIn: false });
     } else if (route === "home") {
       this.setState({ isSingedIn: true });
     }
+    console.log(route);
 
     this.setState({ route: route });
   };
@@ -249,17 +252,17 @@ class App extends React.Component<AppProps, AppState> {
             },
           }}
         />
-        <Navigation onRouteChange={this.onRouteChange} />
+        <Navigation
+          isSignedIn={this.state.isSingedIn}
+          onRouteChange={this.onRouteChange}
+        />
         {this.state.route === "home" ? (
-          <div className="d-flex justify-content-center">
+          <div className="d-flex justify-content-center home">
             <Dashboard
               entries={this.state.user.entries}
               user={this.state.user}
             />
-            <div
-              className="d-flex flex-column justify-content-center"
-              style={{ marginLeft: "40px" }}
-            >
+            <div className="d-flex flex-column justify-content-center image-detection-wrapper">
               <ImageLinkForm
                 onImageSubmit={this.onImageSubmit}
                 onInputChange={this.onInputChange}

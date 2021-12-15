@@ -68,7 +68,7 @@ const SignIn: React.FC<Props> = ({ loadUser }) => {
         </Form.Group>
 
         <Button variant="primary" type="submit">
-          Submit
+          Sign In
         </Button>
       </Form>
     </>

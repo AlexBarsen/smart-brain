@@ -23,7 +23,7 @@ interface Props {
 const ImageDetection: React.FC<Props> = ({ imageUrl, detection }) => {
   return (
     <div className="center mb-4">
-      <Card style={{ width: "510px" }}>
+      <Card className="image-detection">
         <div style={{ position: "relative", fontSize: "0" }}>
           <Card.Img id="inputImage" variant="top" src={imageUrl} />
 

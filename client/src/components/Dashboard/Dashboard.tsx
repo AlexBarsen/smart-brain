@@ -5,6 +5,7 @@ import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
 import ListGroupItem from "react-bootstrap/ListGroupItem";
 import { User } from "../interfaces";
+import "./Dashboard.css";
 
 interface Props {
   user: User;
@@ -17,7 +18,7 @@ const Dashboard: React.FC<Props> = ({ entries, user }) => {
     dataUri: true,
   });
   return (
-    <Card style={{ width: "18rem", height: "30rem" }}>
+    <Card style={{ width: "18rem", height: "30rem" }} className="card">
       <Card.Img variant="top" src={avatar} />
       <div>
         <Card.Body>

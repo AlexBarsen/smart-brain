@@ -96,7 +96,7 @@ const Register: React.FC<Props> = ({ loadUser }) => {
         </Form.Group>
 
         <Button variant="primary" type="submit">
-          Submit
+          Register
         </Button>
       </Form>
     </>

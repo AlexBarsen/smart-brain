@@ -13,19 +13,23 @@ interface Props {
 
 const ImageLinkForm: React.FC<Props> = ({ onInputChange, onImageSubmit }) => {
   return (
-    <div className="flex-column align-items-center center">
+    <div className="flex-column align-items-center center form ">
       <h2 className="mb-3">
         Paste a link leading to an image in the input below.
       </h2>
 
-      <InputGroup className="form mb-3">
+      <InputGroup className="mb-3">
         <FormControl
           placeholder="Input Image Link"
           aria-label="Input Image Link"
           aria-describedby="basic-addon2"
           onChange={onInputChange}
         />
-        <Button variant="primary" onClick={onImageSubmit}>
+        <Button
+          variant="primary"
+          onClick={onImageSubmit}
+          className="form-button"
+        >
           Submit Photo
         </Button>
       </InputGroup>
