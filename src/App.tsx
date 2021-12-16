@@ -193,7 +193,7 @@ class App extends React.Component<AppProps, AppState> {
     }));
     this.setState({ imageUrl: this.state.inputImage });
 
-    fetch("http://localhost:3002/imageurl", {
+    fetch("https://boiling-savannah-89162.herokuapp.com/imageurl", {
       method: "post",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({ input: this.state.inputImage }),
@@ -201,7 +201,7 @@ class App extends React.Component<AppProps, AppState> {
       .then((responses) => responses.json())
       .then((responses) => {
         if (responses) {
-          fetch("http://localhost:3002/image", {
+          fetch("https://boiling-savannah-89162.herokuapp.com/image", {
             method: "put",
             headers: { "Content-type": "application/json" },
             body: JSON.stringify({ id: this.state.user.id }),

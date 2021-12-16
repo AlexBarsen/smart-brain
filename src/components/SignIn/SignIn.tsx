@@ -26,7 +26,7 @@ const SignIn: React.FC<Props> = ({ loadUser }) => {
 
   const onSubmit = (event: any) => {
     event.preventDefault();
-    fetch("http://localhost:3002/signIn", {
+    fetch("https://boiling-savannah-89162.herokuapp.com/signIn", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(inputValues),

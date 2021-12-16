@@ -34,7 +34,7 @@ const Register: React.FC<Props> = ({ loadUser }) => {
     const { password, confirmPassword } = inputValues;
 
     if (password === confirmPassword) {
-      fetch("http://localhost:3002/register", {
+      fetch("https://boiling-savannah-89162.herokuapp.com/register", {
         method: "post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(inputValues),
