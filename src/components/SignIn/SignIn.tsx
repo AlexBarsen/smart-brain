@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./SignIn.css";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import { User } from "../interfaces";
 
 interface Inputs {
   email: string;
@@ -9,10 +10,10 @@ interface Inputs {
 }
 
 interface Props {
-  onRouteChange: (route: string) => void;
+  loadUser: (user: User) => void;
 }
 
-const SignIn: React.FC<Props> = ({ onRouteChange }) => {
+const SignIn: React.FC<Props> = ({ loadUser }) => {
   const [inputValues, setInputValues] = useState<Inputs>({
     email: "",
     password: "",
@@ -23,9 +24,24 @@ const SignIn: React.FC<Props> = ({ onRouteChange }) => {
     setInputValues({ ...inputValues, [name]: value });
   };
 
+  const onSubmit = (event: any) => {
+    event.preventDefault();
+    fetch("http://localhost:3002/signIn", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(inputValues),
+    })
+      .then((response) => response.json())
+      .then((user) => {
+        if (user.id) {
+          loadUser(user);
+        }
+      });
+  };
+
   return (
     <>
-      <Form className="signIn center flex-column">
+      <Form className="signIn center flex-column" onSubmit={onSubmit}>
         <Form.Group className="mb-3 text-left" controlId="formBasicEmail">
           <Form.Label>Email address</Form.Label>
           <Form.Control
@@ -33,6 +49,7 @@ const SignIn: React.FC<Props> = ({ onRouteChange }) => {
             type="email"
             placeholder="Enter email"
             onChange={onInputChange}
+            required
           />
           <Form.Text className="text-muted">
             We'll never share your email with anyone else.
@@ -46,17 +63,12 @@ const SignIn: React.FC<Props> = ({ onRouteChange }) => {
             type="password"
             placeholder="Password"
             onChange={onInputChange}
+            required
           />
         </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicCheckbox">
-          <Form.Check type="checkbox" label="Check me out" />
-        </Form.Group>
-        <Button
-          variant="primary"
-          type="submit"
-          onClick={() => onRouteChange("home")}
-        >
-          Submit
+
+        <Button variant="primary" type="submit">
+          Sign In
         </Button>
       </Form>
     </>

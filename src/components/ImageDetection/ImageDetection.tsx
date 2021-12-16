@@ -23,8 +23,8 @@ interface Props {
 const ImageDetection: React.FC<Props> = ({ imageUrl, detection }) => {
   return (
     <div className="center mb-4">
-      <Card style={{ width: "510px" }}>
-        <div style={{ position: "relative" }}>
+      <Card className="image-detection">
+        <div style={{ position: "relative", fontSize: "0" }}>
           <Card.Img id="inputImage" variant="top" src={imageUrl} />
 
           {detection.detectedValues.map(
@@ -99,8 +99,8 @@ const ImageDetection: React.FC<Props> = ({ imageUrl, detection }) => {
           </>
         ) : (
           <Card.Title style={{ margin: "0", padding: "20px" }}>
-            This application will detect faces, suggest if a person is a
-            celebrity with a probability and the general concepts present in it
+            Your Robot will detect faces, suggest if a person is a celebrity and
+            the general concepts present in it
           </Card.Title>
         )}
       </Card>

@@ -6,3 +6,9 @@
   border-radius: 1rem;
   border: 2px solid gray;
 }
+
+@media screen and (max-width: 600px) {
+  .register {
+    width: 95%;
+  }
+}

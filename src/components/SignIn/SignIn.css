@@ -1,8 +1,14 @@
 .signIn {
   width: 500px;
   margin: auto;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.4);
   padding: 2rem;
   border-radius: 1rem;
   border: 2px solid gray;
+}
+
+@media screen and (max-width: 600px) {
+  .signIn {
+    width: 95%;
+  }
 }

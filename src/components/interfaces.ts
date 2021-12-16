@@ -40,4 +40,10 @@ export interface BoundingBox {
   bottomRow: number;
 }
 
-export interface User {}
+export interface User {
+  id: number | null;
+  email: string;
+  username: string;
+  entries: number | null;
+  joined: Date | null;
+}
