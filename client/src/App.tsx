@@ -7,7 +7,6 @@ import Register from "./components/Register/Register";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import FaceRecognition from "./components/ImageDetection/ImageDetection";
 import Dashboard from "./components/Dashboard/Dashboard";
-import Clarifai from "clarifai";
 
 import {
   DetectionValues,
@@ -58,10 +57,6 @@ interface RegionObject {
   value: number;
 }
 
-const app = new Clarifai.App({
-  apiKey: "6f6968867f3c4783ac2dd9f11db5bf79",
-});
-
 const initialState: AppState = {
   route: "signIn",
   isSingedIn: false,
@@ -101,9 +96,7 @@ class App extends React.Component<AppProps, AppState> {
 
   onRouteChange = (route: string) => {
     if (route === "signOut") {
-      this.setState({ isSingedIn: false });
-    } else if (route === "signIn") {
-      this.setState({ isSingedIn: false });
+      this.setState(initialState);
     } else if (route === "home") {
       this.setState({ isSingedIn: true });
     }
@@ -199,40 +192,44 @@ class App extends React.Component<AppProps, AppState> {
       },
     }));
     this.setState({ imageUrl: this.state.inputImage });
-    Promise.all([
-      app.models.predict(Clarifai.GENERAL_MODEL, this.state.inputImage),
-      app.models.predict(Clarifai.CELEBRITY_MODEL, this.state.inputImage),
-    ]).then((responses) => {
-      if (responses) {
-        fetch("http://localhost:3001/image", {
-          method: "put",
-          headers: { "Content-type": "application/json" },
-          body: JSON.stringify({ id: this.state.user.id }),
-        })
-          .then((response) => response.json())
-          .then((entries) =>
-            this.setState((prevState) => ({
-              ...prevState,
-              user: {
-                id: this.state.user.id,
-                email: this.state.user.email,
-                username: this.state.user.username,
-                entries: entries,
-                joined: this.state.user.joined,
-              },
-            }))
-          )
-          .catch((err) => console.log(err));
 
-        Promise.all(
-          responses.map((response) =>
-            response.outputs[0].model.name === "general"
-              ? this.addGeneralConcepts(response)
-              : this.addFaceBox(this.addCelebrityConcepts(response))
-          )
-        );
-      }
-    });
+    fetch("http://localhost:3001/imageurl", {
+      method: "post",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ input: this.state.inputImage }),
+    })
+      .then((responses) => responses.json())
+      .then((responses) => {
+        if (responses) {
+          fetch("http://localhost:3001/image", {
+            method: "put",
+            headers: { "Content-type": "application/json" },
+            body: JSON.stringify({ id: this.state.user.id }),
+          })
+            .then((response) => response.json())
+            .then((entries) =>
+              this.setState((prevState) => ({
+                ...prevState,
+                user: {
+                  id: this.state.user.id,
+                  email: this.state.user.email,
+                  username: this.state.user.username,
+                  entries: entries,
+                  joined: this.state.user.joined,
+                },
+              }))
+            )
+            .catch((err) => console.log(err));
+
+          Promise.all(
+            responses.map((response: any) =>
+              response.outputs[0].model.name === "general"
+                ? this.addGeneralConcepts(response)
+                : this.addFaceBox(this.addCelebrityConcepts(response))
+            )
+          );
+        }
+      });
   };
 
   render() {
@@ -274,6 +271,8 @@ class App extends React.Component<AppProps, AppState> {
             </div>
           </div>
         ) : this.state.route === "signIn" ? (
+          <SignIn loadUser={this.loadUser} />
+        ) : this.state.route === "signOut" ? (
           <SignIn loadUser={this.loadUser} />
         ) : (
           <Register loadUser={this.loadUser} />

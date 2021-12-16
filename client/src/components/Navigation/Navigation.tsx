@@ -19,7 +19,7 @@ const Navigation: React.FC<Props> = ({ isSignedIn, onRouteChange }) => {
               <Nav.Link
                 className="h4"
                 style={{ fontWeight: "normal" }}
-                onClick={() => onRouteChange("signIn")}
+                onClick={() => onRouteChange("signOut")}
               >
                 <u>Sign Out</u>
               </Nav.Link>

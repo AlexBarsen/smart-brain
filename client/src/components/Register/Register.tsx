@@ -73,6 +73,7 @@ const Register: React.FC<Props> = ({ loadUser }) => {
             type="text"
             placeholder="Username"
             onChange={onInputChange}
+            required
           />
         </Form.Group>
 
@@ -83,6 +84,7 @@ const Register: React.FC<Props> = ({ loadUser }) => {
             type="password"
             placeholder="Password"
             onChange={onInputChange}
+            required
           />
         </Form.Group>
         <Form.Group className="mb-3">
@@ -92,6 +94,7 @@ const Register: React.FC<Props> = ({ loadUser }) => {
             type="password"
             placeholder="Password"
             onChange={onInputChange}
+            required
           />
         </Form.Group>
 
